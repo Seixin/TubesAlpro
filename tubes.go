@@ -242,6 +242,7 @@ func userLoggedInMenu(users *tabuser, groups *tabgroup) {
 		fmt.Println("User Logged In Menu:")
 		fmt.Println("1. Kirim Pesan Pribadi")
 		fmt.Println("2. Inbox")
+		fmt.Println("3. Pesan yang Dikirim")
 		fmt.Println("3. Group")
 		fmt.Println("4. Kembali")
 		fmt.Print("Pilih Opsi:")
@@ -253,8 +254,10 @@ func userLoggedInMenu(users *tabuser, groups *tabgroup) {
 		case 2:
 			viewInbox(users)
 		case 3:
-			groupMenu(groups)
+			ViewSendMessagers(users)
 		case 4:
+			groupMenu(groups)
+		case 5:
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
@@ -340,7 +343,7 @@ func viewInbox(users *tabuser) {
 	message := chats[selectedChat-1]
 
 	fmt.Println()
-	fmt.Println("From\t:\t", message.sender.username)
+	fmt.Println("From\t:\t", (message.sender).username)
 	fmt.Println("Content\t:\t", message.content)
 	fmt.Println("To\t:\t", message.receiver.username)
 	fmt.Println()
@@ -349,6 +352,51 @@ func viewInbox(users *tabuser) {
 
 }
 
+func ViewSendMessagers(users *tabuser) {
+	fmt.Println()
+	fmt.Println("Pesan yang dikirim:")
+
+	var MessageCount int
+
+	for i := 0; i < nChat; i++ {
+		message := chats[i]
+
+		if message.sender == currentUser {
+			fmt.Println("[", i+1, "]", "Pesan untuk", message.receiver.username)
+			MessageCount++
+		}
+	}
+
+	if MessageCount == 0 {
+		fmt.Println("Tidak ada pesan.")
+		fmt.Println()
+	}
+
+	var selectedChat int
+	fmt.Print("Pilih Pesan (0 untuk exit): ")
+	fmt.Scan(&selectedChat)
+
+	for !(selectedChat >= 1 && selectedChat <= nChat) {
+
+		if selectedChat == 0 {
+			return
+		}
+
+		fmt.Print("Pilih Pesan (0 untuk exit): ")
+		fmt.Scan(&selectedChat)
+	}
+
+	message := chats[selectedChat-1]
+
+	fmt.Println()
+	fmt.Println("From\t:\t", (message.sender).username)
+	fmt.Println("Content\t:\t", message.content)
+	fmt.Println("To\t:\t", message.receiver.username)
+	fmt.Println()
+
+	return
+
+}
 func groupMenu(groups *tabgroup) {
 	for {
 		var choice int
