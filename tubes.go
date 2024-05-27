@@ -244,6 +244,7 @@ func userLoggedInMenu(users *tabuser, groups *tabgroup) {
 		fmt.Println("2. Inbox")
 		fmt.Println("3. Group")
 		fmt.Println("4. Kembali")
+		fmt.Print("Pilih Opsi:")
 		fmt.Scan(&choice)
 
 		switch choice {
@@ -287,8 +288,14 @@ func sendPrivateMessage(users *tabuser) {
 		return
 	}
 
-	fmt.Print("Isi Pesan: ")
-	fmt.Scan(&message)
+	fmt.Println("Isi Pesan: ")
+	var temp byte
+	fmt.Scanf("%c", temp)
+
+	for temp != ';' {
+		message += string(temp)
+		fmt.Scanf("%c", &temp)
+	}
 
 	chats[nChat] = Chat{sender: currentUser, receiver: userReceiver, content: message}
 	nChat++
