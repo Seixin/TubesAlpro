@@ -13,6 +13,12 @@ type group struct {
 	member string
 }
 
+type Chat struct {
+	sender   user
+	receiver user
+	content  string
+}
+
 const NMAX int = 100
 
 type tabuser [NMAX]user
