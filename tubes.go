@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type user struct {
 	username string
@@ -23,6 +25,12 @@ const NMAX int = 100
 
 type tabuser [NMAX]user
 type tabgroup [NMAX]group
+type tabChats [NMAX]Chat
+
+var chats tabChats
+var nChat int = 0
+
+var currentUser user
 
 func main() {
 	var users tabuser
@@ -213,13 +221,17 @@ func login(users tabuser) {
 		if users[i].username == username && users[i].password == password {
 			if users[i].approved {
 				fmt.Printf("Selamat datang, %s! Anda berhasil login.\n", username)
+				currentUser = users[i]
 				userLoggedInMenu(&users, &groups)
+
+				return
 			} else {
 				fmt.Println("Akun Anda masih menunggu persetujuan admin. Mohon tunggu.")
 				return
 			}
 		}
 	}
+
 	fmt.Println("Username atau password salah.")
 
 }
@@ -229,16 +241,19 @@ func userLoggedInMenu(users *tabuser, groups *tabgroup) {
 		var choice int
 		fmt.Println("User Logged In Menu:")
 		fmt.Println("1. Kirim Pesan Pribadi")
-		fmt.Println("2. Group")
-		fmt.Println("3. Kembali")
+		fmt.Println("2. Inbox")
+		fmt.Println("3. Group")
+		fmt.Println("4. Kembali")
 		fmt.Scan(&choice)
 
 		switch choice {
 		case 1:
 			sendPrivateMessage(users)
 		case 2:
-			groupMenu(groups)
+			viewInbox(users)
 		case 3:
+			groupMenu(groups)
+		case 4:
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
@@ -252,11 +267,14 @@ func sendPrivateMessage(users *tabuser) {
 	fmt.Print("Username Penerima: ")
 	fmt.Scan(&receiver)
 
+	var userReceiver user
+
 	found := false
 	for i := 0; i < NMAX; i++ {
 		if users[i].username == receiver {
 			if users[i].approved {
 				found = true
+				userReceiver = users[i]
 				break
 			} else {
 				fmt.Println("Penerima pesan belum diapprove oleh admin.")
@@ -271,6 +289,56 @@ func sendPrivateMessage(users *tabuser) {
 
 	fmt.Print("Isi Pesan: ")
 	fmt.Scan(&message)
+
+	chats[nChat] = Chat{sender: currentUser, receiver: userReceiver, content: message}
+	nChat++
+
+	return
+}
+
+func viewInbox(users *tabuser) {
+	fmt.Println()
+	fmt.Println("Inbox")
+
+	var inboxCount int
+
+	for i := 0; i < nChat; i++ {
+		message := chats[i]
+
+		if message.receiver == currentUser {
+			fmt.Println("[", i+1, "]", "Pesan dari", message.sender.username)
+			inboxCount++
+		}
+	}
+
+	if inboxCount == 0 {
+		fmt.Println("Tidak ada pesan.")
+		fmt.Println()
+	}
+
+	var selectedChat int
+	fmt.Print("Pilih inbox (0 untuk exit): ")
+	fmt.Scan(&selectedChat)
+
+	for !(selectedChat >= 1 && selectedChat <= nChat) {
+
+		if selectedChat == 0 {
+			return
+		}
+
+		fmt.Print("Pilih inbox (0 untuk exit): ")
+		fmt.Scan(&selectedChat)
+	}
+
+	message := chats[selectedChat-1]
+
+	fmt.Println()
+	fmt.Println("From\t:\t", message.sender.username)
+	fmt.Println("Content\t:\t", message.content)
+	fmt.Println("To\t:\t", message.receiver.username)
+	fmt.Println()
+
+	return
 
 }
 
