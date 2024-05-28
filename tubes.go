@@ -255,7 +255,7 @@ func userLoggedInMenu(users *tabuser, groups *tabgroup) {
 		case 3:
 			ViewSendMessagers(users)
 		case 4:
-			groupMenu(groups)
+			groupMenu(groups, users)
 		case 5:
 			return
 		default:
@@ -396,21 +396,24 @@ func ViewSendMessagers(users *tabuser) {
 	return
 
 }
-func groupMenu(groups *tabgroup) {
+func groupMenu(groups *tabgroup, users *tabuser) {
 	for {
 		var choice int
 		fmt.Println("Group Menu:")
 		fmt.Println("1. Buat Group")
 		fmt.Println("2. Lihat Group")
-		fmt.Println("3. Kembali")
+		fmt.Println("3. Kirim Pesan ke Group")
+		fmt.Println("4. Kembali")
 		fmt.Scan(&choice)
 
 		switch choice {
 		case 1:
-			createGroup(groups)
+			createGroup(groups, users)
 		case 2:
 			viewGroups(groups)
 		case 3:
+			sendgroup()
+		case 4:
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
@@ -418,10 +421,66 @@ func groupMenu(groups *tabgroup) {
 	}
 }
 
-func createGroup(groups *tabgroup) {
+func createGroup(groups *tabgroup, users *tabuser) {
+	var groupName, invitee string
+	fmt.Println("Buat Group Baru:")
+	fmt.Print("Nama Group: ")
+	fmt.Scan(&groupName)
+	fmt.Print("Username Anda: ")
+	var creatorName string
+	fmt.Scan(&creatorName)
 
+	var invitees [NMAX]string
+	var inviteCount int
+	var alreadyInvited bool
+	for {
+		fmt.Print("Username orang yang ingin diundang (selesai jika sudah selesai): ")
+		fmt.Scan(&invitee)
+
+		if invitee == "selesai" {
+			break
+		}
+
+		found := false
+		for i := 0; i < NMAX; i++ {
+			if users[i].username == invitee && users[i].approved {
+				alreadyInvited = false
+				for j := 0; j < inviteCount; j++ {
+					if invitees[j] == invitee {
+						alreadyInvited = true
+						break
+					}
+				}
+				if alreadyInvited {
+					fmt.Println("Anda sudah mengundang pengguna ini sebelumnya.")
+				} else {
+					found = true
+					invitees[inviteCount] = invitee
+					inviteCount++
+				}
+				break
+			}
+		}
+
+		if !found {
+			alreadyInvited = false
+			if !alreadyInvited {
+				fmt.Println("Username tidak valid atau belum diapprove. Silakan coba lagi.")
+			}
+		}
+	}
+	fmt.Println("Group", groupName, "telah dibuat.")
+	fmt.Println("Anggota Group:")
+	fmt.Println("Pembuat:", creatorName)
+	for i := 0; i < inviteCount; i++ {
+		fmt.Println("Undangan untuk:", invitees[i])
+	}
 }
 
 func viewGroups(groups *tabgroup) {
+	// help ruz
+}
+
+func sendgroup() {
 
 }
