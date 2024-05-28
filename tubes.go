@@ -60,11 +60,10 @@ func main() {
 }
 
 func adminmenu(users *tabuser) {
-	const adminpassword = "jojo"
 	var password string
 	fmt.Print("Masukkan password admin: ")
 	fmt.Scan(&password)
-	if password != adminpassword {
+	if password != "jojo" {
 		fmt.Println("Password salah, akses ditolak")
 		fmt.Println()
 		return
@@ -243,8 +242,8 @@ func userLoggedInMenu(users *tabuser, groups *tabgroup) {
 		fmt.Println("1. Kirim Pesan Pribadi")
 		fmt.Println("2. Inbox")
 		fmt.Println("3. Pesan yang Dikirim")
-		fmt.Println("3. Group")
-		fmt.Println("4. Kembali")
+		fmt.Println("4. Group")
+		fmt.Println("5. Kembali")
 		fmt.Print("Pilih Opsi:")
 		fmt.Scan(&choice)
 
@@ -316,7 +315,7 @@ func viewInbox(users *tabuser) {
 		message := chats[i]
 
 		if message.receiver == currentUser {
-			fmt.Println("[", i+1, "]", "Pesan dari", message.sender.username)
+			fmt.Println("[", inboxCount+1, "]", "Pesan dari", message.sender.username)
 			inboxCount++
 		}
 	}
@@ -362,7 +361,7 @@ func ViewSendMessagers(users *tabuser) {
 		message := chats[i]
 
 		if message.sender == currentUser {
-			fmt.Println("[", i+1, "]", "Pesan untuk", message.receiver.username)
+			fmt.Println("[", MessageCount+1, "]", "Pesan untuk", message.receiver.username)
 			MessageCount++
 		}
 	}
