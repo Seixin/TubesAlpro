@@ -426,54 +426,53 @@ func createGroup(groups *tabgroup, users *tabuser) {
 	fmt.Println("Buat Group Baru:")
 	fmt.Print("Nama Group: ")
 	fmt.Scan(&groupName)
-	fmt.Print("Username Anda: ")
-	var creatorName string
-	fmt.Scan(&creatorName)
 
 	var invitees [NMAX]string
 	var inviteCount int
-	var alreadyInvited bool
+
+	invitees[inviteCount] = currentUser.username
+	inviteCount++
 	for {
-		fmt.Print("Username orang yang ingin diundang (selesai jika sudah selesai): ")
+		fmt.Print("Username orang yang ingin diundang (ketik selesai jika sudah selesai): ")
 		fmt.Scan(&invitee)
 
 		if invitee == "selesai" {
-			break
+
+			fmt.Println("Group berhasil dibuat dengan nama:", groupName)
+			for i := 0; i < inviteCount; i++ {
+				fmt.Println("Mengundang pengguna:", invitees[i])
+			}
+			return
+		}
+
+		alreadyInvited := false
+
+		for j := 0; j < inviteCount; j++ {
+			if invitees[j] == invitee {
+				alreadyInvited = true
+
+			}
+		}
+
+		if alreadyInvited {
+			fmt.Println("Anda sudah mengundang pengguna ini sebelumnya.")
+			continue
 		}
 
 		found := false
+
 		for i := 0; i < NMAX; i++ {
 			if users[i].username == invitee && users[i].approved {
-				alreadyInvited = false
-				for j := 0; j < inviteCount; j++ {
-					if invitees[j] == invitee {
-						alreadyInvited = true
-						break
-					}
-				}
-				if alreadyInvited {
-					fmt.Println("Anda sudah mengundang pengguna ini sebelumnya.")
-				} else {
-					found = true
-					invitees[inviteCount] = invitee
-					inviteCount++
-				}
-				break
+				found = true
+				invitees[inviteCount] = invitee
+				inviteCount++
+
 			}
 		}
 
 		if !found {
-			alreadyInvited = false
-			if !alreadyInvited {
-				fmt.Println("Username tidak valid atau belum diapprove. Silakan coba lagi.")
-			}
+			fmt.Println("Username tidak valid atau belum diapprove. Silakan coba lagi.")
 		}
-	}
-	fmt.Println("Group", groupName, "telah dibuat.")
-	fmt.Println("Anggota Group:")
-	fmt.Println("Pembuat:", creatorName)
-	for i := 0; i < inviteCount; i++ {
-		fmt.Println("Undangan untuk:", invitees[i])
 	}
 }
 
