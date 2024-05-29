@@ -10,12 +10,15 @@ type user struct {
 	approved bool
 }
 
-type group struct {
-	name   string
-	member string
+type Group struct {
+	name        string
+	creator     *user
+	members     [NMAX]*user
+	messages    [NMAX]string
+	memberCount int
 }
 
-type Chat struct {
+type PrivateChat struct {
 	sender   user
 	receiver user
 	content  string
@@ -24,19 +27,30 @@ type Chat struct {
 const NMAX int = 100
 
 type tabuser [NMAX]user
-type tabgroup [NMAX]group
-type tabChats [NMAX]Chat
+type tabgroup [NMAX]Group
+type tabPrivateChats [NMAX]PrivateChat
 
-var chats tabChats
-var nChat int = 0
+// Global array variables
+var PrivateChats tabPrivateChats
+var groups tabgroup
 
-var currentUser user
+// Lengths
+var nPrivateChat int = 0
+var nGroup int = 0
+var nUser int = 0
+
+// Simple 'authentication'
+var currentUser *user
 
 func main() {
 	var users tabuser
 	var role string
+
+	// Dummy data
 	users[0] = user{username: "a", password: "a", approved: true}
 	users[1] = user{username: "s", password: "s", approved: true}
+	nUser = 2
+
 	for {
 		fmt.Println("Menu Utama:")
 		fmt.Println("1. Admin")
@@ -201,6 +215,8 @@ func register(users *tabuser) {
 			users[i] = newUser
 			fmt.Printf("Pengguna %s berhasil terdaftar. Mohon tunggu persetujuan admin.\n", newUser.username)
 			fmt.Println()
+
+			nUser++
 			return
 		}
 	}
@@ -209,7 +225,6 @@ func register(users *tabuser) {
 
 func login(users tabuser) {
 	var username, password string
-	var groups tabgroup
 	fmt.Println("Masukkan informasi login:")
 	fmt.Print("Username: ")
 	fmt.Scan(&username)
@@ -220,8 +235,8 @@ func login(users tabuser) {
 		if users[i].username == username && users[i].password == password {
 			if users[i].approved {
 				fmt.Printf("Selamat datang, %s! Anda berhasil login.\n", username)
-				currentUser = users[i]
-				userLoggedInMenu(&users, &groups)
+				currentUser = &users[i]
+				userLoggedInMenu(&users)
 
 				return
 			} else {
@@ -235,7 +250,7 @@ func login(users tabuser) {
 
 }
 
-func userLoggedInMenu(users *tabuser, groups *tabgroup) {
+func userLoggedInMenu(users *tabuser) {
 	for {
 		var choice int
 		fmt.Println("User Logged In Menu:")
@@ -255,7 +270,7 @@ func userLoggedInMenu(users *tabuser, groups *tabgroup) {
 		case 3:
 			ViewSendMessagers(users)
 		case 4:
-			groupMenu(groups, users)
+			groupMenu(users)
 		case 5:
 			return
 		default:
@@ -299,8 +314,8 @@ func sendPrivateMessage(users *tabuser) {
 		fmt.Scanf("%c", &temp)
 	}
 
-	chats[nChat] = Chat{sender: currentUser, receiver: userReceiver, content: message}
-	nChat++
+	PrivateChats[nPrivateChat] = PrivateChat{sender: *currentUser, receiver: userReceiver, content: message}
+	nPrivateChat++
 
 	return
 }
@@ -311,10 +326,10 @@ func viewInbox(users *tabuser) {
 
 	var inboxCount int
 
-	for i := 0; i < nChat; i++ {
-		message := chats[i]
+	for i := 0; i < nPrivateChat; i++ {
+		message := PrivateChats[i]
 
-		if message.receiver == currentUser {
+		if message.receiver == *currentUser {
 			fmt.Println("[", inboxCount+1, "]", "Pesan dari", message.sender.username)
 			inboxCount++
 		}
@@ -325,21 +340,21 @@ func viewInbox(users *tabuser) {
 		fmt.Println()
 	}
 
-	var selectedChat int
+	var selectedPrivateChat int
 	fmt.Print("Pilih inbox (0 untuk exit): ")
-	fmt.Scan(&selectedChat)
+	fmt.Scan(&selectedPrivateChat)
 
-	for !(selectedChat >= 1 && selectedChat <= nChat) {
+	for !(selectedPrivateChat >= 1 && selectedPrivateChat <= nPrivateChat) {
 
-		if selectedChat == 0 {
+		if selectedPrivateChat == 0 {
 			return
 		}
 
 		fmt.Print("Pilih inbox (0 untuk exit): ")
-		fmt.Scan(&selectedChat)
+		fmt.Scan(&selectedPrivateChat)
 	}
 
-	message := chats[selectedChat-1]
+	message := PrivateChats[selectedPrivateChat-1]
 
 	fmt.Println()
 	fmt.Println("From\t:\t", (message.sender).username)
@@ -357,10 +372,10 @@ func ViewSendMessagers(users *tabuser) {
 
 	var MessageCount int
 
-	for i := 0; i < nChat; i++ {
-		message := chats[i]
+	for i := 0; i < nPrivateChat; i++ {
+		message := PrivateChats[i]
 
-		if message.sender == currentUser {
+		if message.sender == *currentUser {
 			fmt.Println("[", MessageCount+1, "]", "Pesan untuk", message.receiver.username)
 			MessageCount++
 		}
@@ -371,21 +386,21 @@ func ViewSendMessagers(users *tabuser) {
 		fmt.Println()
 	}
 
-	var selectedChat int
+	var selectedPrivateChat int
 	fmt.Print("Pilih Pesan (0 untuk exit): ")
-	fmt.Scan(&selectedChat)
+	fmt.Scan(&selectedPrivateChat)
 
-	for !(selectedChat >= 1 && selectedChat <= nChat) {
+	for !(selectedPrivateChat >= 1 && selectedPrivateChat <= nPrivateChat) {
 
-		if selectedChat == 0 {
+		if selectedPrivateChat == 0 {
 			return
 		}
 
 		fmt.Print("Pilih Pesan (0 untuk exit): ")
-		fmt.Scan(&selectedChat)
+		fmt.Scan(&selectedPrivateChat)
 	}
 
-	message := chats[selectedChat-1]
+	message := PrivateChats[selectedPrivateChat-1]
 
 	fmt.Println()
 	fmt.Println("From\t:\t", (message.sender).username)
@@ -396,7 +411,7 @@ func ViewSendMessagers(users *tabuser) {
 	return
 
 }
-func groupMenu(groups *tabgroup, users *tabuser) {
+func groupMenu(users *tabuser) {
 	for {
 		var choice int
 		fmt.Println("Group Menu:")
@@ -408,9 +423,9 @@ func groupMenu(groups *tabgroup, users *tabuser) {
 
 		switch choice {
 		case 1:
-			createGroup(groups, users)
+			createGroup(users)
 		case 2:
-			viewGroups(groups)
+			viewGroups()
 		case 3:
 			sendgroup()
 		case 4:
@@ -421,63 +436,92 @@ func groupMenu(groups *tabgroup, users *tabuser) {
 	}
 }
 
-func createGroup(groups *tabgroup, users *tabuser) {
-	var groupName, invitee string
+func findUserByUsername(users *tabuser, username string, lengthUsed int) int {
+	// Sequential search
+
+	for i := 0; i < lengthUsed; i++ {
+		if users[i].username == username {
+			return i
+		}
+
+	}
+
+	return -1
+}
+
+func userIsMemberGroup(u *user, g *Group) bool {
+	for _, member := range g.members {
+		if member == u {
+			return true
+		}
+	}
+
+	return false
+}
+
+func createGroup(users *tabuser) {
+	var groupName, memberUsername string
 	fmt.Println("Buat Group Baru:")
 	fmt.Print("Nama Group: ")
 	fmt.Scan(&groupName)
 
-	var invitees [NMAX]string
-	var inviteCount int
+	groups[nGroup].name = groupName
+	groups[nGroup].creator = currentUser
 
-	invitees[inviteCount] = currentUser.username
-	inviteCount++
 	for {
 		fmt.Print("Username orang yang ingin diundang (ketik selesai jika sudah selesai): ")
-		fmt.Scan(&invitee)
+		fmt.Scan(&memberUsername)
 
-		if invitee == "selesai" {
-
+		if memberUsername == "selesai" {
 			fmt.Println("Group berhasil dibuat dengan nama:", groupName)
-			for i := 0; i < inviteCount; i++ {
-				fmt.Println("Mengundang pengguna:", invitees[i])
+			for i := 0; i < groups[nGroup].memberCount; i++ {
+				fmt.Println(groups[nGroup].members[i].username, "telah bergabung dalam group.")
 			}
+
+			fmt.Println(groups[nGroup].members[0:groups[nGroup].memberCount])
+			nGroup++
 			return
 		}
 
-		alreadyInvited := false
-
-		for j := 0; j < inviteCount; j++ {
-			if invitees[j] == invitee {
+		alreadyInvited := memberUsername == groups[nGroup].creator.username
+		for j := 0; j < groups[nGroup].memberCount && !alreadyInvited; j++ {
+			if groups[nGroup].members[j].username == memberUsername {
 				alreadyInvited = true
-
 			}
 		}
 
 		if alreadyInvited {
 			fmt.Println("Anda sudah mengundang pengguna ini sebelumnya.")
-			continue
-		}
+		} else {
+			// Coba cari id, kalau ga nemu bakal return -1, kalau selain -1 lanjut
+			var temp int = findUserByUsername(users, memberUsername, nUser)
 
-		found := false
-
-		for i := 0; i < NMAX; i++ {
-			if users[i].username == invitee && users[i].approved {
-				found = true
-				invitees[inviteCount] = invitee
-				inviteCount++
-
+			if temp != -1 {
+				if users[temp].approved && groups[nGroup].memberCount < NMAX {
+					groups[nGroup].members[groups[nGroup].memberCount] = &users[temp]
+					groups[nGroup].memberCount++
+				}
+			} else {
+				fmt.Println("Username tidak valid atau belum diapprove. Silakan coba lagi.")
 			}
-		}
-
-		if !found {
-			fmt.Println("Username tidak valid atau belum diapprove. Silakan coba lagi.")
 		}
 	}
 }
 
-func viewGroups(groups *tabgroup) {
-	// help ruz
+func viewGroups() {
+	fmt.Println()
+	for i := 0; i < nGroup; i++ {
+		if groups[i].creator == currentUser {
+			fmt.Println(groups[i].name)
+		} else {
+			for j := 0; j < groups[i].memberCount; j++ {
+				// :)))))
+				if groups[i].members[j].username == currentUser.username {
+					fmt.Println(groups[i].name)
+				}
+			}
+		}
+	}
 }
 
 func sendgroup() {
