@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
 )
 
 type user struct {
@@ -71,6 +74,7 @@ func main() {
 			fmt.Println("Silahkan isi pilihan yang valid")
 		}
 	}
+
 }
 
 func adminmenu(users *tabuser) {
@@ -78,11 +82,14 @@ func adminmenu(users *tabuser) {
 	fmt.Print("Masukkan password admin: ")
 	fmt.Scan(&password)
 	if password != "jojo" {
+		ClearTerminal()
 		fmt.Println("Password salah, akses ditolak")
 		fmt.Println()
+
 		return
 	}
 	fmt.Println()
+	ClearTerminal()
 	for {
 		var choice int
 		fmt.Println("Admin Menu:")
@@ -110,7 +117,7 @@ func adminmenu(users *tabuser) {
 }
 
 func viewUsers(users tabuser) {
-
+	ClearTerminal()
 	fmt.Println("Pengguna yang terdaftar:")
 	var u user
 	for i := 0; i < NMAX; i++ {
@@ -125,7 +132,7 @@ func viewUsers(users tabuser) {
 }
 
 func viewUsers2(users tabuser) {
-
+	ClearTerminal()
 	fmt.Println("Pengguna yang belum diapprove:")
 	var u user
 	for i := 0; i < NMAX; i++ {
@@ -139,6 +146,7 @@ func viewUsers2(users tabuser) {
 	fmt.Println()
 }
 func approveRejectUsers(users *tabuser) {
+	ClearTerminal()
 	var username string
 	var action string
 	fmt.Println()
@@ -154,13 +162,16 @@ func approveRejectUsers(users *tabuser) {
 			case "approve":
 				users[i].approved = true
 				fmt.Printf("Pengguna %s telah disetujui.\n", username)
+				fmt.Println()
 				return
 			case "reject":
 				users[i].approved = false
 				fmt.Printf("Pengguna %s telah ditolak.\n", username)
+				fmt.Println()
 				return
 			default:
 				fmt.Println("Aksi tidak valid. Silakan pilih 'approve' atau 'reject'.")
+				fmt.Println()
 				return
 			}
 		}
@@ -477,8 +488,6 @@ func createGroup(users *tabuser) {
 			for i := 0; i < groups[nGroup].memberCount; i++ {
 				fmt.Println(groups[nGroup].members[i].username, "telah bergabung dalam group.")
 			}
-
-			fmt.Println(groups[nGroup].members[0:groups[nGroup].memberCount])
 			nGroup++
 			return
 		}
@@ -515,7 +524,6 @@ func viewGroups() {
 			fmt.Println(groups[i].name)
 		} else {
 			for j := 0; j < groups[i].memberCount; j++ {
-				// :)))))
 				if groups[i].members[j].username == currentUser.username {
 					fmt.Println(groups[i].name)
 				}
@@ -526,4 +534,15 @@ func viewGroups() {
 
 func sendgroup() {
 
+}
+
+func ClearTerminal() {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", "cls") // for Windows
+	} else {
+		cmd = exec.Command("clear") // for Unix-like systems
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
