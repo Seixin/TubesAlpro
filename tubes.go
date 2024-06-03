@@ -546,12 +546,10 @@ func viewGroupMember() {
 	selectedGroup := &groups[groupChoice-1]
 	fmt.Printf("Peserta dalam Group %s:\n", selectedGroup.name)
 
-	// Tampilkan pembuat grup terlebih dahulu
 	fmt.Printf("1. %s (Admin)\n", selectedGroup.creator.username)
 
-	// Tampilkan anggota grup
 	for i := 0; i < selectedGroup.memberCount; i++ {
-		fmt.Printf("%d. %s\n", i+2, selectedGroup.members[i].username) // Mulai dari 2 karena creator sudah di nomor 1
+		fmt.Printf("%d. %s\n", i+2, selectedGroup.members[i].username)
 	}
 	fmt.Println()
 }
