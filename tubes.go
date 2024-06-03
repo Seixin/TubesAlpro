@@ -554,4 +554,5 @@ func viewGroupMember() {
 	fmt.Println()
 }
 
-func sendGroupMessage() {}
+func sendGroupMessage() {
+}
