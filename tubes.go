@@ -417,8 +417,9 @@ func groupMenu(users *tabuser) {
 		fmt.Println("Group Menu:")
 		fmt.Println("1. Buat Group")
 		fmt.Println("2. Lihat Group")
-		fmt.Println("3. Kirim Pesan ke Group")
-		fmt.Println("4. Kembali")
+		fmt.Println("3. Lihat Peserta Group")
+		fmt.Println("4. Kirim Pesan ke Group")
+		fmt.Println("5. Kembali")
 		fmt.Scan(&choice)
 
 		switch choice {
@@ -427,8 +428,10 @@ func groupMenu(users *tabuser) {
 		case 2:
 			viewGroups()
 		case 3:
-			sendgroup()
+			viewGroupMember()
 		case 4:
+			sendGroupMessage()
+		case 5:
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
@@ -522,8 +525,35 @@ func viewGroups() {
 			}
 		}
 	}
+	fmt.Println()
 }
 
-func sendgroup() {
+func viewGroupMember() {
+	fmt.Println("Daftar Group:")
+	for i := 0; i < nGroup; i++ {
+		fmt.Printf("%d. %s\n", i+1, groups[i].name)
+	}
 
+	var groupChoice int
+	fmt.Print("Pilih Group yang ingin dilihat pesertanya (0 untuk kembali): ")
+	fmt.Scan(&groupChoice)
+
+	if groupChoice < 1 || groupChoice > nGroup {
+		fmt.Println("Pilihan tidak valid.")
+		return
+	}
+
+	selectedGroup := &groups[groupChoice-1]
+	fmt.Printf("Peserta dalam Group %s:\n", selectedGroup.name)
+
+	// Tampilkan pembuat grup terlebih dahulu
+	fmt.Printf("1. %s (Admin)\n", selectedGroup.creator.username)
+
+	// Tampilkan anggota grup
+	for i := 0; i < selectedGroup.memberCount; i++ {
+		fmt.Printf("%d. %s\n", i+2, selectedGroup.members[i].username) // Mulai dari 2 karena creator sudah di nomor 1
+	}
+	fmt.Println()
 }
+
+func sendGroupMessage() {}
