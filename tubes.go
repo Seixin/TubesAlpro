@@ -441,6 +441,16 @@ func viewJoinedGroups() {
 	}
 }
 
+func inGroup(u *user, g *Group) bool {
+	for i := 0; i < g.memberCount; i++ {
+		if g.members[i].username == u.username {
+			return true
+		}
+	}
+
+	return false
+}
+
 func createGroup(users *tabuser) {
 	var groupName string
 	fmt.Print("Masukkan nama grup baru: ")
@@ -462,11 +472,9 @@ func createGroup(users *tabuser) {
 
 	groups[nGroup].members[0] = currentUser
 
-	fmt.Println("Daftar pengguna yang terdaftar:")
-	for i := 0; i < NMAX; i++ {
-		if users[i].username != "" && users[i].approved && users[i].username != currentUser.username {
-			fmt.Println("-", users[i].username)
-		}
+	fmt.Println("Daftar pengguna yang terdaftar di grup ini:")
+	for i := 0; i < groups[nGroup].memberCount; i++ {
+		fmt.Println("-", groups[nGroup].members[i].username)
 	}
 
 	for {
@@ -549,7 +557,9 @@ func viewGroups() {
 func sendGroupMessage() {
 	fmt.Println("Daftar grup:")
 	for i := 0; i < nGroup; i++ {
-		fmt.Printf("[%d] %s\n", i+1, groups[i].name)
+		if inGroup(currentUser, &groups[i]) {
+			fmt.Printf("[%d] %s\n", i+1, groups[i].name)
+		}
 	}
 
 	var selectedGroup int
@@ -560,25 +570,14 @@ func sendGroupMessage() {
 		return
 	}
 
-	if selectedGroup < 1 || selectedGroup > nGroup {
-		fmt.Println("Pilihan tidak valid.")
-		return
+	for !inGroup(currentUser, &groups[selectedGroup-1]) {
+		fmt.Println("Grup tidak ditemukan. Coba lagi.")
+
+		fmt.Print("Pilih nomor grup untuk mengirim pesan (0 untuk kembali): ")
+		fmt.Scan(&selectedGroup)
 	}
 
 	groupIndex := selectedGroup - 1
-
-	isMember := false
-	for i := 0; i < groups[groupIndex].memberCount; i++ {
-		if groups[groupIndex].members[i].username == currentUser.username {
-			isMember = true
-			break
-		}
-	}
-
-	if !isMember {
-		fmt.Println("Anda bukan anggota grup ini.")
-		return
-	}
 
 	var message string
 	fmt.Print("Masukkan pesan (akhiri dengan ';'): ")
@@ -597,14 +596,7 @@ func sendGroupMessage() {
 func groupMessage(users *tabuser) {
 	fmt.Println("Daftar grup yang Anda ikuti:")
 	for i := 0; i < nGroup; i++ {
-		isMember := false
-		for j := 0; j < groups[i].memberCount; j++ {
-			if groups[i].members[j].username == currentUser.username {
-				isMember = true
-				break
-			}
-		}
-		if isMember {
+		if inGroup(currentUser, &groups[i]) {
 			fmt.Printf("[%d] %s\n", i+1, groups[i].name)
 		}
 	}
@@ -617,25 +609,14 @@ func groupMessage(users *tabuser) {
 		return
 	}
 
-	if selectedGroup < 1 || selectedGroup > nGroup {
-		fmt.Println("Pilihan tidak valid.")
-		return
+	for !inGroup(currentUser, &groups[selectedGroup-1]) {
+		fmt.Println("Grup tidak ditemukan. Coba lagi.")
+
+		fmt.Print("Pilih nomor grup untuk melihat pesan (0 untuk kembali): ")
+		fmt.Scan(&selectedGroup)
 	}
 
 	groupIndex := selectedGroup - 1
-
-	isMember := false
-	for i := 0; i < groups[groupIndex].memberCount; i++ {
-		if groups[groupIndex].members[i].username == currentUser.username {
-			isMember = true
-			break
-		}
-	}
-
-	if !isMember {
-		fmt.Println("Anda bukan anggota grup ini.")
-		return
-	}
 
 	fmt.Printf("Pesan dalam grup %s:\n", groups[groupIndex].name)
 	for i := 0; i < groups[groupIndex].messageCount; i++ {
