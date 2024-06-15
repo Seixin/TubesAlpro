@@ -428,17 +428,16 @@ func groupMenu(users *tabuser) {
 func viewJoinedGroups() {
 	fmt.Println("Grup yang Anda ikuti:")
 	for i := 0; i < nGroup; i++ {
-		isMember := false
-		for j := 0; j < groups[i].memberCount; j++ {
-			if groups[i].members[j].username == currentUser.username {
-				isMember = true
+		if inGroup(currentUser, &groups[i]) {
+			fmt.Printf("[%d] %s\n", i+1, groups[i].name)
+			fmt.Println("Members:")
 
+			for j := 0; j < groups[i].memberCount; j++ {
+				fmt.Printf("- %s\n", groups[i].members[j].username)
 			}
 		}
-		if isMember {
-			fmt.Printf("[%d] %s\n", i+1, groups[i].name)
-		}
 	}
+
 }
 
 func inGroup(u *user, g *Group) bool {
