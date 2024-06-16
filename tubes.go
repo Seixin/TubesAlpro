@@ -112,6 +112,20 @@ func adminmenu(users *tabUser) {
 }
 
 func viewUsers(users tabUser) {
+	var pilih int
+	fmt.Println("Anda Ingin Menampilka Data Secara Ascending Atau Descending?")
+	fmt.Println("Ketik (1) Ascending, (2) Descending")
+	fmt.Scan(&pilih)
+	if pilih == 1 {
+		urutAscending(&users)
+		fmt.Println("Pengguna yang terdaftar:")
+	} else if pilih == 2 {
+		urutDescending(&users)
+	} else {
+		fmt.Println("Pilihan tidak valid")
+		fmt.Println()
+		return
+	}
 	fmt.Println("Pengguna yang terdaftar:")
 	for i := 0; i < users.length; i++ {
 		if users.data[i].username != "" && users.data[i].approved {
@@ -119,6 +133,42 @@ func viewUsers(users tabUser) {
 		}
 	}
 	fmt.Println()
+}
+
+func urutAscending(users *tabUser) {
+	var pass, idx, i int
+	var temp user
+
+	pass = 1
+	for pass <= users.length-1 {
+		idx = pass - 1
+		i = pass
+		for i < users.length {
+			if users.data[idx].username > users.data[i].username {
+				idx = i
+			}
+			i = i + 1
+		}
+		temp = users.data[pass-1]
+		users.data[pass-1] = users.data[idx]
+		users.data[idx] = temp
+		pass = pass + 1
+	}
+}
+func urutDescending(users *tabUser) {
+	var pass, i int
+	var temp user
+	pass = 1
+	for pass <= users.length-1 {
+		i = pass
+		temp.username = users.data[i].username
+		for i > 0 && temp.username > users.data[i-1].username {
+			users.data[i].username = users.data[i-1].username
+			i = i - 1
+		}
+		users.data[i].username = temp.username
+		pass = pass + 1
+	}
 }
 
 func viewUsers2(users tabUser) {
