@@ -476,40 +476,37 @@ func createGroup(users *tabuser) {
 		fmt.Println("-", groups[nGroup].members[i].username)
 	}
 
-	for {
-		var addUser string
+	var addUser string
+	for addUser != "0" {
 		fmt.Print("Masukkan nama pengguna untuk diundang ke grup (0 untuk berhenti): ")
 		fmt.Scan(&addUser)
 
-		if addUser == "0" {
-			break
-		}
-
-		userFound := false
-		for i := 0; i < NMAX; i++ {
-			if users[i].username == addUser && users[i].approved {
-				userFound = true
-				alreadyMember := false
-				for j := 0; j < groups[nGroup].memberCount; j++ {
-					if groups[nGroup].members[j].username == addUser {
-						alreadyMember = true
-						break
+		if addUser != "0" {
+			userFound := false
+			for i := 0; i < NMAX && !userFound; i++ {
+				if users[i].username == addUser && users[i].approved {
+					userFound = true
+					alreadyMember := false
+					for j := 0; j < groups[nGroup].memberCount && !alreadyMember; j++ {
+						if groups[nGroup].members[j].username == addUser {
+							alreadyMember = true
+						}
+					}
+					if alreadyMember {
+						fmt.Println("Pengguna sudah menjadi anggota grup.")
+					} else {
+						groups[nGroup].members[groups[nGroup].memberCount] = &users[i]
+						groups[nGroup].memberCount++
+						fmt.Printf("Pengguna %s telah ditambahkan ke grup.\n", addUser)
 					}
 				}
-				if alreadyMember {
-					fmt.Println("Pengguna sudah menjadi anggota grup.")
-				} else {
-					groups[nGroup].members[groups[nGroup].memberCount] = &users[i]
-					groups[nGroup].memberCount++
-					fmt.Printf("Pengguna %s telah ditambahkan ke grup.\n", addUser)
-				}
-				break
+			}
+
+			if !userFound {
+				fmt.Println("Pengguna tidak ditemukan atau belum diapprove.")
 			}
 		}
 
-		if !userFound {
-			fmt.Println("Pengguna tidak ditemukan atau belum diapprove.")
-		}
 	}
 
 	fmt.Printf("Grup %s berhasil dibuat.\n", groupName)
@@ -519,14 +516,7 @@ func createGroup(users *tabuser) {
 func viewGroups() {
 	fmt.Println("Daftar grup yang Anda ikuti:")
 	for i := 0; i < nGroup; i++ {
-		isMember := false
-		for j := 0; j < groups[i].memberCount; j++ {
-			if groups[i].members[j].username == currentUser.username {
-				isMember = true
-				break
-			}
-		}
-		if isMember {
+		if inGroup(currentUser, &groups[i]) {
 			fmt.Printf("[%d] %s\n", i+1, groups[i].name)
 		}
 	}
