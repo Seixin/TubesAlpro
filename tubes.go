@@ -42,11 +42,11 @@ type tabPrivateChats struct {
 	length int
 }
 
+var users tabUser
 var PrivateChats tabPrivateChats
 var groups tabGroup
 
 func main() {
-	var users tabUser
 	var role string
 
 	users.data[0] = user{username: "a", password: "a", approved: true}
@@ -261,11 +261,11 @@ func userLoggedInMenu(users *tabUser, currentUser *user) {
 		case 1:
 			sendPrivateMessage(users, currentUser)
 		case 2:
-			viewInbox(users, currentUser)
+			viewInbox(currentUser)
 		case 3:
 			ViewSendMessagers(users, currentUser)
 		case 4:
-			groupMenu(users, currentUser)
+			groupMenu(currentUser)
 		case 5:
 			return
 		default:
@@ -315,7 +315,7 @@ func sendPrivateMessage(users *tabUser, currentUser *user) {
 	return
 }
 
-func viewInbox(users *tabUser, currentUser *user) {
+func viewInbox(currentUser *user) {
 	fmt.Println()
 	fmt.Println("Inbox")
 
@@ -403,7 +403,7 @@ func ViewSendMessagers(users *tabUser, currentUser *user) {
 	fmt.Println()
 }
 
-func groupMenu(users *tabUser, currentUser *user) {
+func groupMenu(currentUser *user) {
 	for {
 		var choice int
 		fmt.Println("Group Menu:")
@@ -417,13 +417,13 @@ func groupMenu(users *tabUser, currentUser *user) {
 
 		switch choice {
 		case 1:
-			createGroup(users, currentUser)
+			createGroup(currentUser)
 		case 2:
 			viewJoinedGroups(currentUser)
 		case 3:
 			sendGroupMessage(currentUser)
 		case 4:
-			groupMessage(users, currentUser)
+			groupMessage(currentUser)
 		case 5:
 			return
 		default:
@@ -457,7 +457,7 @@ func inGroup(u user, g Group) bool {
 	return false
 }
 
-func createGroup(users *tabUser, currentUser *user) {
+func createGroup(currentUser *user) {
 	var groupName string
 	fmt.Print("Masukkan nama grup baru: ")
 	fmt.Scan(&groupName)
@@ -589,7 +589,7 @@ func sendGroupMessage(currentUser *user) {
 	fmt.Println("Pesan berhasil dikirim ke grup.")
 }
 
-func groupMessage(users *tabUser, currentUser *user) {
+func groupMessage(currentUser *user) {
 	fmt.Println("Daftar grup yang Anda ikuti:")
 	for i := 0; i < groups.length; i++ {
 		if inGroup(*currentUser, groups.data[i]) {
