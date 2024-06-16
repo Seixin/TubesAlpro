@@ -47,6 +47,7 @@ var PrivateChats tabPrivateChats
 var groups tabGroup
 
 func main() {
+	fmt.Println()
 	var role string
 
 	users.data[0] = user{username: "a", password: "a", approved: true}
@@ -68,9 +69,11 @@ func main() {
 			usermenu(&users)
 		case "3":
 			fmt.Println("Keluar dari program")
+			fmt.Println()
 			return
 		default:
 			fmt.Println("Silahkan isi pilihan yang valid")
+			fmt.Println()
 		}
 	}
 }
@@ -107,6 +110,7 @@ func adminmenu(users *tabUser) {
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
+			fmt.Println()
 		}
 	}
 }
@@ -241,7 +245,6 @@ func binarySearchDescending(users *tabUser, target string) int {
 func approveRejectUsers(users *tabUser) {
 	var username string
 	var action string
-	fmt.Println()
 	fmt.Print("Masukkan nama pengguna yang ingin disetujui/tolak: ")
 	fmt.Scan(&username)
 
@@ -254,13 +257,16 @@ func approveRejectUsers(users *tabUser) {
 			case "approve":
 				users.data[i].approved = true
 				fmt.Printf("Pengguna %s telah disetujui.\n", username)
+				fmt.Println()
 				return
 			case "reject":
 				users.data[i].approved = false
 				fmt.Printf("Pengguna %s telah ditolak.\n", username)
+				fmt.Println()
 				return
 			default:
 				fmt.Println("Aksi tidak valid. Silakan pilih 'approve' atau 'reject'.")
+				fmt.Println()
 				return
 			}
 		}
@@ -288,9 +294,11 @@ func usermenu(users *tabUser) {
 		case 2:
 			login(*users, &currentUser)
 		case 3:
+			fmt.Println()
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
+			fmt.Println()
 		}
 	}
 }
@@ -337,19 +345,21 @@ func login(users tabUser, currentUser *user) {
 		if users.data[i].username == username && users.data[i].password == password {
 			if users.data[i].approved {
 				fmt.Printf("Selamat datang, %s! Anda berhasil login.\n", username)
+				fmt.Println()
 				currentUser = &users.data[i]
 				userLoggedInMenu(&users, currentUser)
 
 				return
 			} else {
 				fmt.Println("Akun Anda masih menunggu persetujuan admin. Mohon tunggu.")
+				fmt.Println()
 				return
 			}
 		}
 	}
 
 	fmt.Println("Username atau password salah.")
-
+	fmt.Println()
 }
 
 func userLoggedInMenu(users *tabUser, currentUser *user) {
@@ -374,9 +384,11 @@ func userLoggedInMenu(users *tabUser, currentUser *user) {
 		case 4:
 			groupMenu(currentUser)
 		case 5:
+			fmt.Println()
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
+			fmt.Println()
 		}
 	}
 }
@@ -398,15 +410,17 @@ func sendPrivateMessage(users *tabUser, currentUser *user) {
 
 			} else {
 				fmt.Println("Penerima pesan belum diapprove oleh admin.")
+				fmt.Println()
 				return
 			}
 		}
 	}
 	if !found {
 		fmt.Println("Penerima pesan tidak ditemukan.")
+		fmt.Println()
 		return
 	}
-
+	fmt.Println("Pesan diakhiri dengan Tanda ;")
 	fmt.Println("Isi Pesan: ")
 	var temp byte
 	fmt.Scanf("%c", temp)
@@ -418,7 +432,7 @@ func sendPrivateMessage(users *tabUser, currentUser *user) {
 
 	PrivateChats.data[PrivateChats.length] = PrivateChat{sender: *currentUser, receiver: userReceiver, content: message}
 	PrivateChats.length++
-
+	fmt.Println()
 	return
 }
 
@@ -447,6 +461,7 @@ func viewInbox(currentUser *user) {
 	fmt.Scan(&selectedPrivateChat)
 
 	if selectedPrivateChat == 0 {
+		fmt.Println()
 		return
 	}
 
@@ -491,6 +506,7 @@ func ViewSendMessagers(users *tabUser, currentUser *user) {
 	fmt.Scan(&selectedPrivateChat)
 
 	if selectedPrivateChat == 0 {
+		fmt.Println()
 		return
 	}
 
@@ -506,11 +522,11 @@ func ViewSendMessagers(users *tabUser, currentUser *user) {
 	fmt.Println("From:", message.sender.username)
 	fmt.Println("To:", message.receiver.username)
 	fmt.Println("Message:", message.content)
-
 	fmt.Println()
 }
 
 func groupMenu(currentUser *user) {
+	fmt.Println()
 	for {
 		var choice int
 		fmt.Println("Group Menu:")
@@ -532,9 +548,11 @@ func groupMenu(currentUser *user) {
 		case 4:
 			groupMessage(currentUser)
 		case 5:
+			fmt.Println()
 			return
 		default:
 			fmt.Println("Pilihan tidak valid. Silakan pilih opsi yang valid.")
+			fmt.Println()
 		}
 	}
 }
@@ -545,13 +563,12 @@ func viewJoinedGroups(currentUser *user) {
 		if inGroup(*currentUser, groups.data[i]) {
 			fmt.Printf("[%d] %s\n", i+1, groups.data[i].name)
 			fmt.Println("Members:")
-
 			for j := 0; j < groups.data[i].memberCount; j++ {
 				fmt.Printf("- %s\n", groups.data[i].members[j].username)
 			}
 		}
 	}
-
+	fmt.Println()
 }
 
 func inGroup(u user, g Group) bool {
@@ -560,7 +577,6 @@ func inGroup(u user, g Group) bool {
 			return true
 		}
 	}
-
 	return false
 }
 
@@ -568,28 +584,25 @@ func createGroup(currentUser *user) {
 	var groupName string
 	fmt.Print("Masukkan nama grup baru: ")
 	fmt.Scan(&groupName)
-
 	for i := 0; i < groups.length; i++ {
 		if groups.data[i].name == groupName {
 			fmt.Println("Nama grup sudah ada. Silakan pilih nama lain.")
+			fmt.Println()
 			return
 		}
 	}
-
 	groups.data[groups.length] = Group{
 		name:         groupName,
 		creator:      currentUser,
 		memberCount:  1,
 		messageCount: 0,
 	}
-
 	groups.data[groups.length].members[0] = currentUser
 
 	fmt.Println("Daftar pengguna yang terdaftar di grup ini:")
 	for i := 0; i < groups.data[groups.length].memberCount; i++ {
 		fmt.Println("-", groups.data[groups.length].members[i].username)
 	}
-
 	var addUser string
 	for addUser != "0" {
 		fmt.Print("Masukkan nama pengguna untuk diundang ke grup (0 untuk berhenti): ")
@@ -615,46 +628,15 @@ func createGroup(currentUser *user) {
 					}
 				}
 			}
-
 			if !userFound {
 				fmt.Println("Pengguna tidak ditemukan atau belum diapprove.")
 			}
 		}
-
 	}
 
 	fmt.Printf("Grup %s berhasil dibuat.\n", groupName)
+	fmt.Println()
 	groups.length++
-}
-
-func viewGroups(currentUser *user) {
-	fmt.Println("Daftar grup yang Anda ikuti:")
-	for i := 0; i < groups.length; i++ {
-		if inGroup(*currentUser, groups.data[i]) {
-			fmt.Printf("[%d] %s\n", i+1, groups.data[i].name)
-		}
-	}
-
-	var selectedGroup int
-	fmt.Print("Pilih nomor grup untuk melihat anggota (0 untuk kembali): ")
-	fmt.Scan(&selectedGroup)
-
-	if selectedGroup == 0 {
-		return
-	}
-
-	if selectedGroup < 1 || selectedGroup > groups.length {
-		fmt.Println("Pilihan tidak valid.")
-		return
-	}
-
-	groupIndex := selectedGroup - 1
-	fmt.Printf("Anggota grup %s:\n", groups.data[groupIndex].name)
-	for j := 0; j < groups.data[groupIndex].memberCount; j++ {
-		if groups.data[groupIndex].members[j] != nil {
-			fmt.Printf("- %s\n", groups.data[groupIndex].members[j].username)
-		}
-	}
 }
 
 func sendGroupMessage(currentUser *user) {
@@ -670,6 +652,7 @@ func sendGroupMessage(currentUser *user) {
 	fmt.Scan(&selectedGroup)
 
 	if selectedGroup == 0 {
+		fmt.Println()
 		return
 	}
 
@@ -694,6 +677,7 @@ func sendGroupMessage(currentUser *user) {
 	groups.data[groupIndex].messages[groups.data[groupIndex].messageCount] = message
 	groups.data[groupIndex].messageCount++
 	fmt.Println("Pesan berhasil dikirim ke grup.")
+	fmt.Println()
 }
 
 func groupMessage(currentUser *user) {
@@ -709,6 +693,7 @@ func groupMessage(currentUser *user) {
 	fmt.Scan(&selectedGroup)
 
 	if selectedGroup == 0 {
+		fmt.Println()
 		return
 	}
 
@@ -724,5 +709,6 @@ func groupMessage(currentUser *user) {
 	fmt.Printf("Pesan dalam grup %s:\n", groups.data[groupIndex].name)
 	for i := 0; i < groups.data[groupIndex].messageCount; i++ {
 		fmt.Printf("[%d] %s\n", i+1, groups.data[groupIndex].messages[i])
+		fmt.Println()
 	}
 }
