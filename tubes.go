@@ -369,7 +369,7 @@ func ViewSendMessagers(users *tabUser, currentUser *user) {
 		message := PrivateChats.data[i]
 
 		if message.sender == *currentUser {
-			fmt.Println("[", sendCount+1, "]", "Pesan ke", message.receiver.username)
+			fmt.Println("[", i+1, "]", "Pesan ke", message.receiver.username)
 			sendCount++
 		}
 	}
@@ -383,13 +383,13 @@ func ViewSendMessagers(users *tabUser, currentUser *user) {
 	fmt.Print("Pilih pesan yang dikirim (0 untuk exit): ")
 	fmt.Scan(&selectedPrivateChat)
 
-	for !(selectedPrivateChat >= 1 && selectedPrivateChat <= PrivateChats.length) {
+	if selectedPrivateChat == 0 {
+		return
+	}
 
-		if selectedPrivateChat == 0 {
-			return
-		}
-
-		fmt.Print("Pilih pesan yang dikirim (0 untuk exit): ")
+	for !(selectedPrivateChat >= 1 && selectedPrivateChat <= PrivateChats.length) && PrivateChats.data[selectedPrivateChat-1].sender != *currentUser {
+		fmt.Println("No inbox tidak valid. Coba lagi.")
+		fmt.Print("Pilih inbox (0 untuk exit): ")
 		fmt.Scan(&selectedPrivateChat)
 	}
 
