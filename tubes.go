@@ -118,7 +118,6 @@ func viewUsers(users tabUser) {
 	fmt.Scan(&pilih)
 	if pilih == 1 {
 		urutAscending(&users)
-		fmt.Println("Pengguna yang terdaftar:")
 	} else if pilih == 2 {
 		urutDescending(&users)
 	} else {
@@ -130,6 +129,28 @@ func viewUsers(users tabUser) {
 	for i := 0; i < users.length; i++ {
 		if users.data[i].username != "" && users.data[i].approved {
 			fmt.Println(users.data[i].username)
+		}
+	}
+	var cari string
+	fmt.Print("Ingin mencari user? (Y/N): ")
+	fmt.Scan(&cari)
+	if pilih == 1 && cari == "Y" {
+		fmt.Print("Masukkan nama user yang ingin dicari: ")
+		fmt.Scan(&cari)
+		idx := binarySearchAscending(&users, cari)
+		if idx != -1 {
+			fmt.Printf("User %s ditemukan pada indeks %d\n", cari, idx)
+		} else {
+			fmt.Printf("User %s tidak ditemukan\n", cari)
+		}
+	} else if pilih == 2 && cari == "Y" {
+		fmt.Print("Masukkan nama user yang ingin dicari: ")
+		fmt.Scan(&cari)
+		idx := binarySearchDescending(&users, cari)
+		if idx != -1 {
+			fmt.Printf("User %s ditemukan pada indeks %d\n", cari, idx)
+		} else {
+			fmt.Printf("User %s tidak ditemukan\n", cari)
 		}
 	}
 	fmt.Println()
@@ -179,6 +200,42 @@ func viewUsers2(users tabUser) {
 		}
 	}
 	fmt.Println()
+}
+
+func binarySearchAscending(users *tabUser, target string) int {
+	low := 0
+	high := users.length - 1
+
+	for low <= high {
+		mid := (low + high) / 2
+		if users.data[mid].username == target {
+			return mid
+		} else if users.data[mid].username < target {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+
+	return -1
+}
+
+func binarySearchDescending(users *tabUser, target string) int {
+	low := 0
+	high := users.length - 1
+
+	for low <= high {
+		mid := (low + high) / 2
+		if users.data[mid].username == target {
+			return mid
+		} else if users.data[mid].username > target {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+
+	return -1
 }
 
 func approveRejectUsers(users *tabUser) {
@@ -628,7 +685,7 @@ func sendGroupMessage(currentUser *user) {
 	var message string
 	fmt.Print("Masukkan pesan (akhiri dengan ';'): ")
 	var temp byte
-	fmt.Scanf("%c", &temp) // Membaca karakter newline sebelum pesan
+	fmt.Scanf("%c", &temp)
 	for temp != ';' {
 		message += string(temp)
 		fmt.Scanf("%c", &temp)
